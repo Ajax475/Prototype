@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Riverside Bed Management System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    /* ============================================================
+       iOS STYLE GLOBAL RESET
+       ==============================================================*/
+    :root {
+      --bg: #f7f7f9;
+      --white: #ffffff;
+      --gray1: #fafafa;
+      --gray2: #f0f0f2;
+      --gray3: #e6e6e9;
+      --gray4: #d4d4d8;
+      --text-main: #111111;
+      --text-muted: #6b7280;
+      --blue: #007aff;
+      --green: #34c759;
+      --yellow: #ffcc00;
+      --red: #ff3b30;
+      --radius: 18px;
+      --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ============================================================
+       APP CONTAINER (PHONE VIEW)
+       ==============================================================*/
+    .app-container {
+      width: 100%;
+      max-width: 420px;
+      height: 100vh;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ============================================================
+       iOS BIG TITLE HEADER
+       ==============================================================*/
+    .header {
+      padding: 26px 20px 10px;
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .header-title-large {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      letter-spacing: -0.5px;
+    }
+
+    .header-subtitle {
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    /* ============================================================
+       MAIN CONTENT AREA
+       ==============================================================*/
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 16px 80px;
+    }
+
+    /* ============================================================
+       iOS CARD COMPONENT
+       ==============================================================*/
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-title {
+      font-weight: 600;
+      font-size: 17px;
+      margin-bottom: 6px;
+    }
+
+    .card-text {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 10px;
+      line-height: 1.35;
+    }
+
+    /* ============================================================
+       iOS BUTTONS
+       ==============================================================*/
+    .btn {
+      display: inline-block;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      text-align: center;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: white;
+      box-shadow: 0 2px 10px rgba(0,122,255,0.3);
+    }
+
+    .btn-primary:active {
+      background: #0063d6;
+    }
+
+    .btn-outline {
+      background: var(--white);
+      border: 2px solid var(--gray3);
+      color: var(--text-main);
+    }
+
+    /* ============================================================
+       iOS INPUT FIELDS
+       ==============================================================*/
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    .input-label {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px;
+      border-radius: var(--radius);
+      border: 1px solid var(--gray3);
+      font-size: 16px;
+      background: var(--white);
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 2px rgba(0,122,255,0.3);
+    }
+
+    /* ============================================================
+       iOS TAB BAR (BOTTOM NAVIGATION)
+       ==============================================================*/
+    .tab-bar {
+      height: 65px;
+      background: var(--white);
+      border-top: 1px solid var(--gray3);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 420px;
+      z-index: 50;
+    }
+
+    .tab-item {
+      flex: 1;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 12px;
+      cursor: pointer;
+      padding-top: 6px;
+    }
+
+    .tab-item.active {
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    /* Simple icons (emoji placeholders) */
+    .tab-icon {
+      font-size: 20px;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* ============================================================
+       SCREEN VISIBILITY
+       ==============================================================*/
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ============================================================
+       STATUS PILLS
+       ==============================================================*/
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      margin-right: 6px;
+      color: white;
+    }
+
+    .pill-discharge { background: var(--yellow); color: black; }
+    .pill-left      { background: var(--red); }
+    .pill-evs       { background: var(--blue); }
+    .pill-clean     { background: var(--green); }
+
+    /* ============================================================
+       TABLES (Queue, Reports, Bed Manager)
+       ==============================================================*/
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 12px;
+    }
+
+    th {
+      text-align: left;
+      color: var(--text-muted);
+      font-size: 14px;
+      padding-bottom: 6px;
+    }
+
+    td {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--gray3);
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- ============================================================
+         SCREEN: LOGIN
+         ============================================================ -->
+    <div id="screen-login" class="screen active">
+      <div class="header">
+        <div class="header-title-large">Login</div>
+        <div class="header-subtitle">Riverside Bed Management System</div>
+      </div>
+
+      <div class="main-content">
+
+        <div class="card">
+          <div class="card-title">Welcome</div>
+          <div class="card-text">
+            Login using a demo username:<br><br>
+            <b>rn.smith</b> (Nurse)<br>
+            <b>evs.jones</b> (EVS Tech)<br>
+            <b>bed.mgr</b> (Bed Manager)
+          </div>
+        </div>
+
+        <div class="input-group">
+          <div class="input-label">Username</div>
+          <input id="login-username" class="input-field" placeholder="e.g., rn.smith" />
+        </div>
+
+        <div class="input-group">
+          <div class="input-label">Password</div>
+          <input type="password" class="input-field" placeholder="••••••" />
+        </div>
+
+        <button class="btn btn-primary" onclick="handleLogin()">Sign In</button>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SCREEN: HOME
+         ============================================================ -->
+    <div id="screen-home" class="screen">
+      <div class="header">
+        <div class="header-title-large">Home</div>
+        <div class="header-subtitle">Welcome back</div>
+      </div>
+
+      <div class="main-content">
+
+        <div class="card">
+          <div class="card-title">Discharge Queue</div>
+          <div class="card-text">
+            Track rooms from Discharge Ordered to Patient Left to EVS to Clean.
+          </div>
+          <button class="btn btn-primary" onclick="goTo('queue')">Open Queue</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">EVS Task Board</div>
+          <div class="card-text">
+            EVS staff can see waiting and in-progress rooms.
+          </div>
+          <button class="btn btn-primary" onclick="goTo('evs')">Open EVS Board</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Bed Manager</div>
+          <div class="card-text">
+            View occupancy, available rooms, and discharge progress.
+          </div>
+          <button class="btn btn-primary" onclick="goTo('bed')">Open Bed Manager</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Reports</div>
+          <div class="card-text">
+            Analyze room statuses and completed cleans.
+          </div>
+          <button class="btn btn-primary" onclick="goTo('reports')">Open Reports</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SCREEN: QUEUE
+         ============================================================ -->
+    <div id="screen-queue" class="screen">
+      <div class="header">
+        <div class="header-title-large">Discharge Queue</div>
+        <div class="header-subtitle">5B / 5C Units</div>
+      </div>
+
+      <div class="main-content">
+        <table>
+          <thead>
+            <tr>
+              <th>Room</th>
+              <th>Status</th>
+              <th>Since</th>
+            </tr>
+          </thead>
+          <tbody id="queue-body"></tbody>
+        </table>
+
+        <div class="card">
+          <div class="card-title">Start New Discharge</div>
+          <div class="input-group">
+            <div class="input-label">Room Number</div>
+            <input id="new-room" class="input-field" placeholder="5B-320" />
+          </div>
+
+          <div class="input-group">
+            <div class="input-label">Unit</div>
+            <input id="new-unit" class="input-field" placeholder="5B" />
+          </div>
+
+          <div class="input-group">
+            <div class="input-label">Priority</div>
+            <input id="new-priority" class="input-field" placeholder="Standard, Isolation, etc." />
+          </div>
+
+          <button class="btn btn-primary" onclick="createDischarge()">Create Discharge Ordered</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SCREEN: ROOM DETAIL
+         ============================================================ -->
+    <div id="screen-room" class="screen">
+      <div class="header">
+        <div class="header-title-large" id="room-title">Room</div>
+        <div class="header-subtitle" id="room-subtitle">Details</div>
+      </div>
+
+      <div class="main-content">
+        <div id="room-detail-container"></div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SCREEN: EVS BOARD
+         ============================================================ -->
+    <div id="screen-evs" class="screen">
+      <div class="header">
+        <div class="header-title-large">EVS Board</div>
+        <div class="header-subtitle">Cleaning workflow</div>
+      </div>
+
+      <div class="main-content">
+
+        <div class="card">
+          <div class="card-title">Waiting for EVS</div>
+          <div id="evs-waiting"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">In Progress</div>
+          <div id="evs-inprogress"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SCREEN: BED MANAGER
+         ============================================================ -->
+    <div id="screen-bed" class="screen">
+      <div class="header">
+        <div class="header-title-large">Bed Manager</div>
+        <div class="header-subtitle">Unit Snapshot</div>
+      </div>
+
+      <div class="main-content">
+
+        <div class="card">
+          <div class="card-title">Key Metrics</div>
+          <table>
+            <tr>
+              <td>Occupancy</td>
+              <td id="metric-occupancy" style="text-align:right;">–</td>
+            </tr>
+            <tr>
+              <td>Clean / Ready</td>
+              <td id="metric-ready" style="text-align:right;">–</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Room Statuses</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Room</th>
+                <th>Status</th>
+                <th>Since</th>
+              </tr>
+            </thead>
+            <tbody id="bed-body"></tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SCREEN: REPORTS
+         ============================================================ -->
+    <div id="screen-reports" class="screen">
+      <div class="header">
+        <div class="header-title-large">Reports</div>
+        <div class="header-subtitle">Daily summary</div>
+      </div>
+
+      <div class="main-content">
+
+        <div class="card">
+          <div class="card-title">Status Counts</div>
+          <table>
+            <tr><td>Discharge Ordered</td><td id="rep-ordered" style="text-align:right;">–</td></tr>
+            <tr><td>Patient Left</td><td id="rep-left" style="text-align:right;">–</td></tr>
+            <tr><td>EVS In Progress</td><td id="rep-evs" style="text-align:right;">–</td></tr>
+            <tr><td>Room Clean</td><td id="rep-clean" style="text-align:right;">–</td></tr>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Recently Cleaned</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Room</th>
+                <th>Unit</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody id="reports-body"></tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================
+         iOS BOTTOM TAB BAR
+         ============================================================ -->
+    <div class="tab-bar">
+      <div class="tab-item active" id="tab-home" onclick="goTo('home')">
+        <span class="tab-icon">🏠</span>Home
+      </div>
+      <div class="tab-item" id="tab-queue" onclick="goTo('queue')">
+        <span class="tab-icon">📋</span>Queue
+      </div>
+      <div class="tab-item" id="tab-evs" onclick="goTo('evs')">
+        <span class="tab-icon">🧹</span>EVS
+      </div>
+      <div class="tab-item" id="tab-bed" onclick="goTo('bed')">
+        <span class="tab-icon">🛏️</span>Bed
+      </div>
+      <div class="tab-item" id="tab-reports" onclick="goTo('reports')">
+        <span class="tab-icon">📊</span>Reports
+      </div>
+    </div>
+
+  </div> <!-- END APP CONTAINER -->
+
+<script type="module">
+  /* ============================================================
+     SUPABASE INIT
+     ============================================================ */
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+  const SUPABASE_URL = "https://guohbmcrhpwbbskzjzeo.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_ARLQrQickqp8VqdiMs4S1w_h_C23y0H";
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  /* ============================================================
+     GLOBAL APP STATE
+     ============================================================ */
+  let currentUser = null;
+  let currentRole = null; // nurse | evs | bedmanager
+  let patients = [];
+  let rooms = [];
+  let evsTasks = [];
+  let seeded = false;
+
+  /* ============================================================
+     NAVIGATION / SCREEN HANDLING
+     ============================================================ */
+  function goTo(screenName) {
+    if (!currentUser && screenName !== "login") {
+      showScreen("login");
+      return;
+    }
+    showScreen(screenName);
+  }
+
+  function showScreen(screenName) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    const screen = document.getElementById(`screen-${screenName}`);
+    if (screen) screen.classList.add("active");
+
+    // highlight tab
+    document.querySelectorAll(".tab-item").forEach(t => t.classList.remove("active"));
+    const tab = document.getElementById(`tab-${screenName}`);
+    if (tab) tab.classList.add("active");
+
+    // rerender when visiting screens
+    if (screenName === "queue") renderQueue();
+    if (screenName === "evs") renderEVSBoard();
+    if (screenName === "bed") renderBedManager();
+    if (screenName === "reports") renderReports();
+  }
+
+  // 🔓 make these callable from HTML onclick=""
+  window.goTo = goTo;
+  window.showScreen = showScreen;
+
+  /* ============================================================
+     LOGIN HANDLER
+     ============================================================ */
+  window.handleLogin = async function () {
+    const username = document.getElementById("login-username").value.trim();
+
+    if (!username) {
+      alert("Please enter a username.");
+      return;
+    }
+
+    let role = "nurse";
+    if (username.toLowerCase().includes("evs")) role = "evs";
+    if (username.toLowerCase().includes("bed")) role = "bedmanager";
+
+    currentUser = username;
+    currentRole = role;
+
+    await loadData();
+    await maybeSeedData();
+
+    goTo("home");
+  };
+
+  /* ============================================================
+     SUPABASE DATA LOAD
+     ============================================================ */
+  async function loadData() {
+    const { data: p, error: pErr } = await supabase.from("patients").select("*").order("id");
+    const { data: r, error: rErr } = await supabase.from("rooms").select("*").order("id");
+    const { data: e, error: eErr } = await supabase.from("evs_tasks").select("*").order("id");
+
+    if (pErr) console.error("Patients load error:", pErr);
+    if (rErr) console.error("Rooms load error:", rErr);
+    if (eErr) console.error("EVS load error:", eErr);
+
+    patients = p || [];
+    rooms = r || [];
+    evsTasks = e || [];
+  }
+
+  /* ============================================================
+     AUTO-SEED SAMPLE DATA (Only if DB is empty)
+     ============================================================ */
+  async function maybeSeedData() {
+    if (seeded) return;
+
+    if (patients.length === 0) {
+      console.log("Seeding patients...");
+      await supabase.from("patients").insert([
+        {
+          patient_name: "John White",
+          mrn: "223344",
+          unit: "5B",
+          room_number: "5B-312",
+          discharge_status: "Discharge Ordered",
+          discharge_ordered_at: new Date(),
+          priority: "High – Isolation"
+        },
+        {
+          patient_name: "Lisa Turner",
+          mrn: "554433",
+          unit: "5B",
+          room_number: "5B-318",
+          discharge_status: "Patient Left",
+          patient_left_at: new Date(),
+          priority: "Medium"
+        },
+        {
+          patient_name: "Robert Cruz",
+          mrn: "998877",
+          unit: "5C",
+          room_number: "5C-114",
+          discharge_status: "EVS In Progress",
+          evs_started_at: new Date(),
+          priority: "Standard"
+        }
+      ]);
+    }
+
+    if (rooms.length === 0) {
+      console.log("Seeding rooms...");
+      await supabase.from("rooms").insert([
+        { unit: "5B", room_number: "5B-312", room_status: "Occupied" },
+        { unit: "5B", room_number: "5B-318", room_status: "Dirty" },
+        { unit: "5C", room_number: "5C-114", room_status: "Dirty" },
+        { unit: "5C", room_number: "5C-200", room_status: "Clean" }
+      ]);
+    }
+
+    if (evsTasks.length === 0) {
+      console.log("Seeding EVS tasks...");
+      await supabase.from("evs_tasks").insert([
+        {
+          unit: "5B",
+          room_number: "5B-318",
+          patient_name: "Lisa Turner",
+          task_status: "Waiting",
+          priority: "High"
+        }
+      ]);
+    }
+
+    seeded = true;
+    await loadData();
+  }
+
+  /* ============================================================
+     UTILITY FUNCTIONS
+     ============================================================ */
+  function sinceTime(dateString) {
+    if (!dateString) return "—";
+    const date = new Date(dateString);
+    const diffMin = Math.floor((Date.now() - date.getTime()) / 60000);
+    if (diffMin < 1) return "Just now";
+    if (diffMin < 60) return diffMin + " min";
+    const hours = Math.floor(diffMin / 60);
+    return hours + " hr";
+  }
+
+  function pill(status) {
+    if (status === "Discharge Ordered") return `<span class="pill pill-discharge">Ordered</span>`;
+    if (status === "Patient Left") return `<span class="pill pill-left">Left</span>`;
+    if (status === "EVS In Progress") return `<span class="pill pill-evs">EVS</span>`;
+    if (status === "Room Clean") return `<span class="pill pill-clean">Clean</span>`;
+    return status || "—";
+  }
+
+  function getSince(p) {
+    if (p.discharge_status === "Discharge Ordered") return sinceTime(p.discharge_ordered_at);
+    if (p.discharge_status === "Patient Left") return sinceTime(p.patient_left_at);
+    if (p.discharge_status === "EVS In Progress") return sinceTime(p.evs_started_at);
+    if (p.discharge_status === "Room Clean") return sinceTime(p.evs_completed_at);
+    return "—";
+  }
+
+  /* ============================================================
+     QUEUE RENDER
+     ============================================================ */
+  function renderQueue() {
+    const body = document.getElementById("queue-body");
+    if (!body) return;
+    body.innerHTML = "";
+
+    patients.forEach(p => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td style="cursor:pointer; font-weight:600;" onclick="openRoom(${p.id})">${p.room_number || "—"}</td>
+        <td>${pill(p.discharge_status)}</td>
+        <td>${getSince(p)}</td>
+      `;
+      body.appendChild(tr);
+    });
+  }
+
+  /* ============================================================
+     CREATE NEW DISCHARGE
+     ============================================================ */
+  window.createDischarge = async function () {
+    const room = document.getElementById("new-room").value.trim();
+    const unit = document.getElementById("new-unit").value.trim() || "5B";
+    const priority = document.getElementById("new-priority").value.trim() || "Standard";
+
+    if (!room) {
+      alert("Enter a room number.");
+      return;
+    }
+
+    const { error } = await supabase.from("patients").insert([
+      {
+        patient_name: "Unknown",
+        mrn: null,
+        unit,
+        room_number: room,
+        discharge_status: "Discharge Ordered",
+        discharge_ordered_at: new Date(),
+        priority
+      }
+    ]);
+
+    if (error) {
+      console.error("Insert failed:", error);
+      alert("Error inserting data. Check console.");
+      return;
+    }
+
+    // Reload latest data
+    await loadData();
+
+    // Rerender all screens that depend on patients
+    renderQueue();
+    renderEVSBoard();
+    renderBedManager();
+    renderReports();
+
+    // Clear form fields
+    document.getElementById("new-room").value = "";
+    document.getElementById("new-unit").value = "";
+    document.getElementById("new-priority").value = "";
+
+    alert("Discharge Ordered created!");
+  };
+
+  /* ============================================================
+     OPEN ROOM DETAIL
+     ============================================================ */
+  window.openRoom = function (id) {
+    const p = patients.find(x => x.id === id);
+    if (!p) return;
+
+    document.getElementById("room-title").textContent = p.room_number || "Room";
+    document.getElementById("room-subtitle").textContent = (p.unit || "") + " Unit";
+
+    let history = "";
+    if (p.discharge_ordered_at)
+      history += `<tr><td>Discharge Ordered</td><td>${new Date(p.discharge_ordered_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td></tr>`;
+    if (p.patient_left_at)
+      history += `<tr><td>Patient Left</td><td>${new Date(p.patient_left_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td></tr>`;
+    if (p.evs_started_at)
+      history += `<tr><td>EVS Started</td><td>${new Date(p.evs_started_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td></tr>`;
+    if (p.evs_completed_at)
+      history += `<tr><td>Room Clean</td><td>${new Date(p.evs_completed_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td></tr>`;
+
+    const next = getNextStep(p.discharge_status);
+
+    document.getElementById("room-detail-container").innerHTML = `
+      <div class="card">
+        <div class="card-title">Status</div>
+        <div style="margin-bottom:12px;">${pill(p.discharge_status)} · Since ${getSince(p)}</div>
+        ${
+          next
+            ? `<button class="btn btn-primary" onclick="advanceStatus(${p.id})">Next: ${next}</button>`
+            : `<div class="card-text">Workflow complete.</div>`
+        }
+      </div>
+
+      <div class="card">
+        <div class="card-title">Event Log</div>
+        <table>${history || "<tr><td>No events yet.</td><td></td></tr>"}</table>
+      </div>
+    `;
+
+    goTo("room");
+  };
+
+  /* ============================================================
+     WORKFLOW: GET NEXT STEP
+     ============================================================ */
+  function getNextStep(current) {
+    if (current === "Discharge Ordered") return "Patient Left";
+    if (current === "Patient Left") return "EVS In Progress";
+    if (current === "EVS In Progress") return "Room Clean";
+    return null;
+  }
+
+  /* ============================================================
+     WORKFLOW: ADVANCE STATUS
+     ============================================================ */
+  window.advanceStatus = async function (id) {
+    const p = patients.find(x => x.id === id);
+    if (!p) return;
+
+    const next = getNextStep(p.discharge_status);
+    if (!next) return;
+
+    let updates = {};
+    if (next === "Patient Left") updates = { discharge_status: next, patient_left_at: new Date() };
+    if (next === "EVS In Progress") updates = { discharge_status: next, evs_started_at: new Date() };
+    if (next === "Room Clean") updates = { discharge_status: next, evs_completed_at: new Date() };
+
+    const { error } = await supabase.from("patients").update(updates).eq("id", id);
+    if (error) {
+      console.error("Update failed:", error);
+      alert("Error updating status. Check console.");
+      return;
+    }
+
+    await loadData();
+    renderQueue();
+    renderEVSBoard();
+    renderBedManager();
+    renderReports();
+    openRoom(id);
+  };
+
+  /* ============================================================
+     EVS BOARD RENDER
+     ============================================================ */
+  function renderEVSBoard() {
+    const waiting = document.getElementById("evs-waiting");
+    const inprog = document.getElementById("evs-inprogress");
+    if (!waiting || !inprog) return;
+
+    waiting.innerHTML = "";
+    inprog.innerHTML = "";
+
+    patients.forEach(p => {
+      if (p.discharge_status === "Patient Left") {
+        waiting.innerHTML += `
+          <div class="card" style="padding:12px; margin-bottom:8px;">
+            <div style="font-weight:600;">${p.room_number || "—"}</div>
+            <div class="card-text">${p.priority || ""}</div>
+            <button class="btn btn-primary" onclick="advanceStatus(${p.id})">Start Cleaning</button>
+          </div>
+        `;
+      }
+
+      if (p.discharge_status === "EVS In Progress") {
+        inprog.innerHTML += `
+          <div class="card" style="padding:12px; margin-bottom:8px;">
+            <div style="font-weight:600;">${p.room_number || "—"}</div>
+            <div class="card-text">${p.priority || ""}</div>
+            <button class="btn btn-primary" onclick="advanceStatus(${p.id})">Mark Clean</button>
+          </div>
+        `;
+      }
+    });
+
+    if (!waiting.innerHTML.trim()) waiting.innerHTML = `<div class="card-text">No rooms waiting.</div>`;
+    if (!inprog.innerHTML.trim()) inprog.innerHTML = `<div class="card-text">No rooms in progress.</div>`;
+  }
+
+  /* ============================================================
+     BED MANAGER RENDER
+     ============================================================ */
+  function renderBedManager() {
+    const body = document.getElementById("bed-body");
+    if (!body) return;
+    body.innerHTML = "";
+
+    const total = patients.length;
+    const cleanCount = patients.filter(p => p.discharge_status === "Room Clean").length;
+    const occupied = total - cleanCount;
+
+    document.getElementById("metric-occupancy").textContent =
+      total ? Math.floor((occupied / total) * 100) + "%" : "–";
+    document.getElementById("metric-ready").textContent = cleanCount;
+
+    patients.forEach(p => {
+      body.innerHTML += `
+        <tr>
+          <td>${p.room_number || "—"}</td>
+          <td>${pill(p.discharge_status)}</td>
+          <td>${getSince(p)}</td>
+        </tr>
+      `;
+    });
+  }
+
+  /* ============================================================
+     REPORTS RENDER
+     ============================================================ */
+  function renderReports() {
+    const ordered = patients.filter(p => p.discharge_status === "Discharge Ordered").length;
+    const left = patients.filter(p => p.discharge_status === "Patient Left").length;
+    const evs = patients.filter(p => p.discharge_status === "EVS In Progress").length;
+    const clean = patients.filter(p => p.discharge_status === "Room Clean").length;
+
+    document.getElementById("rep-ordered").textContent = ordered;
+    document.getElementById("rep-left").textContent = left;
+    document.getElementById("rep-evs").textContent = evs;
+    document.getElementById("rep-clean").textContent = clean;
+
+    const tbody = document.getElementById("reports-body");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+
+    patients
+      .filter(p => p.discharge_status === "Room Clean")
+      .forEach(p => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${p.room_number || "—"}</td>
+            <td>${p.unit || ""}</td>
+            <td>${p.evs_completed_at
+              ? new Date(p.evs_completed_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+              : "–"}</td>
+          </tr>
+        `;
+      });
+
+    if (!tbody.innerHTML.trim()) {
+      tbody.innerHTML = `<tr><td colspan="3">No clean rooms yet.</td></tr>`;
+    }
+  }
+
+  /* ============================================================
+     INITIAL LOAD (LOGIN SCREEN)
+     ============================================================ */
+  showScreen("login");
+</script>
