@@ -49,12 +49,12 @@
     .app-container {
       width: 100%;
       max-width: 420px;
-      min-height: 100vh;       /* allow taller content */
+      min-height: 100vh;
       background: var(--bg);
       display: flex;
       flex-direction: column;
       position: relative;
-      overflow-y: auto;        /* enable vertical scroll */
+      overflow-y: auto;
     }
 
     /* ============================================================
@@ -188,12 +188,6 @@
       max-width: 420px;
       z-index: 50;
     }
-    /* Hide bottom nav while on login screen */
-  .hide-tabs .tab-bar {
-    display: none;
-  }
-
-    
 
     .tab-item {
       flex: 1;
@@ -213,6 +207,11 @@
       font-size: 20px;
       display: block;
       margin-bottom: 2px;
+    }
+
+    /* Hide bottom nav while on login screen */
+    .hide-tabs .tab-bar {
+      display: none;
     }
 
     /* ============================================================
@@ -514,7 +513,7 @@
     </div>
 
     <!-- ============================================================
-         iOS BOTTOM TAB BAR
+         BOTTOM TAB BAR
          ============================================================ -->
     <div class="tab-bar">
       <div class="tab-item active" id="tab-home" onclick="goTo('home')">
@@ -562,6 +561,8 @@
        ============================================================ */
     function goTo(screenName) {
       if (!currentUser && screenName !== "login") {
+        // not logged in → force login and hide tabs
+        document.body.classList.add("hide-tabs");
         showScreen("login");
         return;
       }
@@ -624,11 +625,11 @@
 
       currentUser = username;
       currentRole = role;
-      // show bottom nav once user is logged in
-      document.body.classList.remove("hide-tabs");
-
 
       applyRoleView();
+
+      // user is now logged in → show bottom tabs
+      document.body.classList.remove("hide-tabs");
 
       await loadData();
       await maybeSeedData();
