@@ -295,7 +295,7 @@
       </div>
     </div>
 
-    <!-- ============================================================
+        <!-- ============================================================
          SCREEN: HOME
          ============================================================ -->
     <div id="screen-home" class="screen">
@@ -306,26 +306,48 @@
 
       <div class="main-content">
 
-            <div class="card" id="home-card-queue">
-      <div class="card-title">Discharge Queue</div>
-      ...
-    </div>
+        <div class="card" id="home-card-queue">
+          <div class="card-title">Discharge Queue</div>
+          <div class="card-text">
+            For nurses and charge nurses to manage discharges for 5B/5C.
+          </div>
+          <button class="btn btn-primary" onclick="goTo('queue')">
+            Open Discharge Queue
+          </button>
+        </div>
 
-    <div class="card" id="home-card-evs">
-      <div class="card-title">EVS Task Board</div>
-      ...
-    </div>
+        <div class="card" id="home-card-evs">
+          <div class="card-title">EVS Task Board</div>
+          <div class="card-text">
+            EVS techs can view rooms waiting for cleaning and mark them clean.
+          </div>
+          <button class="btn btn-primary" onclick="goTo('evs')">
+            Open EVS Board
+          </button>
+        </div>
 
-    <div class="card" id="home-card-bed">
-      <div class="card-title">Bed Manager</div>
-      ...
-    </div>
+        <div class="card" id="home-card-bed">
+          <div class="card-title">Bed Manager</div>
+          <div class="card-text">
+            Bed managers see occupancy, clean/ready rooms, and current status.
+          </div>
+          <button class="btn btn-primary" onclick="goTo('bed')">
+            Open Bed Manager
+          </button>
+        </div>
 
-    <div class="card" id="home-card-reports">
-      <div class="card-title">Reports</div>
-      ...
-    </div>
+        <div class="card" id="home-card-reports">
+          <div class="card-title">Reports</div>
+          <div class="card-text">
+            View a daily summary of discharges, EVS progress, and clean rooms.
+          </div>
+          <button class="btn btn-primary" onclick="goTo('reports')">
+            View Reports
+          </button>
+        </div>
 
+      </div> <!-- end .main-content -->
+    </div>   <!-- end #screen-home -->
     <!-- ============================================================
          SCREEN: QUEUE
          ============================================================ -->
