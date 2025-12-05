@@ -188,6 +188,12 @@
       max-width: 420px;
       z-index: 50;
     }
+    /* Hide bottom nav while on login screen */
+  .hide-tabs .tab-bar {
+    display: none;
+  }
+
+    
 
     .tab-item {
       flex: 1;
@@ -255,7 +261,7 @@
     }
   </style>
 </head>
-<body>
+<body class="hide-tabs">
   <div class="app-container">
 
     <!-- ============================================================
@@ -618,6 +624,9 @@
 
       currentUser = username;
       currentRole = role;
+      // show bottom nav once user is logged in
+      document.body.classList.remove("hide-tabs");
+
 
       applyRoleView();
 
