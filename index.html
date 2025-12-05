@@ -8,7 +8,7 @@
   <style>
     /* ============================================================
        iOS STYLE GLOBAL RESET
-       ==============================================================*/
+       ============================================================ */
     :root {
       --bg: #f7f7f9;
       --white: #ffffff;
@@ -45,22 +45,21 @@
 
     /* ============================================================
        APP CONTAINER (PHONE VIEW)
-       ==============================================================*/
-   .app-container {
-  width: 100%;
-  max-width: 420px;
-  min-height: 100vh;       /* allow taller content */
-  background: var(--bg);
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow-y: auto;        /* enable vertical scroll */
-}
-    
+       ============================================================ */
+    .app-container {
+      width: 100%;
+      max-width: 420px;
+      min-height: 100vh;       /* allow taller content */
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-y: auto;        /* enable vertical scroll */
+    }
 
     /* ============================================================
        iOS BIG TITLE HEADER
-       ==============================================================*/
+       ============================================================ */
     .header {
       padding: 26px 20px 10px;
       background: var(--bg);
@@ -83,7 +82,7 @@
 
     /* ============================================================
        MAIN CONTENT AREA
-       ==============================================================*/
+       ============================================================ */
     .main-content {
       flex: 1;
       overflow-y: auto;
@@ -92,7 +91,7 @@
 
     /* ============================================================
        iOS CARD COMPONENT
-       ==============================================================*/
+       ============================================================ */
     .card {
       background: var(--white);
       border-radius: var(--radius);
@@ -116,7 +115,7 @@
 
     /* ============================================================
        iOS BUTTONS
-       ==============================================================*/
+       ============================================================ */
     .btn {
       display: inline-block;
       padding: 12px 16px;
@@ -147,7 +146,7 @@
 
     /* ============================================================
        iOS INPUT FIELDS
-       ==============================================================*/
+       ============================================================ */
     .input-group {
       margin-bottom: 16px;
     }
@@ -175,7 +174,7 @@
 
     /* ============================================================
        iOS TAB BAR (BOTTOM NAVIGATION)
-       ==============================================================*/
+       ============================================================ */
     .tab-bar {
       height: 65px;
       background: var(--white);
@@ -204,7 +203,6 @@
       font-weight: 600;
     }
 
-    /* Simple icons (emoji placeholders) */
     .tab-icon {
       font-size: 20px;
       display: block;
@@ -213,13 +211,13 @@
 
     /* ============================================================
        SCREEN VISIBILITY
-       ==============================================================*/
+       ============================================================ */
     .screen { display: none; }
     .screen.active { display: block; }
 
     /* ============================================================
        STATUS PILLS
-       ==============================================================*/
+       ============================================================ */
     .pill {
       display: inline-block;
       padding: 4px 10px;
@@ -236,7 +234,7 @@
 
     /* ============================================================
        TABLES (Queue, Reports, Bed Manager)
-       ==============================================================*/
+       ============================================================ */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -295,7 +293,7 @@
       </div>
     </div>
 
-        <!-- ============================================================
+    <!-- ============================================================
          SCREEN: HOME
          ============================================================ -->
     <div id="screen-home" class="screen">
@@ -346,8 +344,9 @@
           </button>
         </div>
 
-      </div> <!-- end .main-content -->
-    </div>   <!-- end #screen-home -->
+      </div>
+    </div>
+
     <!-- ============================================================
          SCREEN: QUEUE
          ============================================================ -->
@@ -531,532 +530,521 @@
 
   </div> <!-- END APP CONTAINER -->
 
-<script type="module">
-  /* ============================================================
-     SUPABASE INIT
-     ============================================================ */
-  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+  <script type="module">
+    /* ============================================================
+       SUPABASE INIT
+       ============================================================ */
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-  const SUPABASE_URL = "https://guohbmcrhpwbbskzjzeo.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_ARLQrQickqp8VqdiMs4S1w_h_C23y0H";
+    const SUPABASE_URL = "https://guohbmcrhpwbbskzjzeo.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_ARLQrQickqp8VqdiMs4S1w_h_C23y0H";
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  /* ============================================================
-     GLOBAL APP STATE
-     ============================================================ */
-  let currentUser = null;
-  let currentRole = null; // nurse | evs | bedmanager
-  let patients = [];
-  let rooms = [];
-  let evsTasks = [];
-  let seeded = false;
+    /* ============================================================
+       GLOBAL APP STATE
+       ============================================================ */
+    let currentUser = null;
+    let currentRole = null; // nurse | evs | bedmanager
+    let patients = [];
+    let rooms = [];
+    let evsTasks = [];
+    let seeded = false;
 
-  /* ============================================================
-     NAVIGATION / SCREEN HANDLING (with role guard)
-     ============================================================ */
-  function goTo(screenName) {
-    if (!currentUser && screenName !== "login") {
-      showScreen("login");
-      return;
+    /* ============================================================
+       NAVIGATION / SCREEN HANDLING (with role guard)
+       ============================================================ */
+    function goTo(screenName) {
+      if (!currentUser && screenName !== "login") {
+        showScreen("login");
+        return;
+      }
+
+      // Role-based guard: block screens user shouldn't see
+      if (currentRole === "evs" &&
+          (screenName === "queue" || screenName === "bed" || screenName === "reports" || screenName === "room")) {
+        alert("As EVS, you only access the EVS Board.");
+        screenName = "evs";
+      }
+
+      if (currentRole === "nurse" &&
+          (screenName === "evs" || screenName === "bed" || screenName === "reports")) {
+        alert("As a nurse, your main view is the Discharge Queue.");
+        screenName = "queue";
+      }
+
+      if (currentRole === "bedmanager" && screenName === "queue") {
+        alert("Bed Managers focus on the Bed Manager and Reports views.");
+        screenName = "bed";
+      }
+
+      showScreen(screenName);
     }
 
-    // Role-based guard: block screens user shouldn't see
-    if (currentRole === "evs" &&
-        (screenName === "queue" || screenName === "bed" || screenName === "reports" || screenName === "room")) {
-      alert("As EVS, you only access the EVS Board.");
-      screenName = "evs";
+    function showScreen(screenName) {
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      const screen = document.getElementById(`screen-${screenName}`);
+      if (screen) screen.classList.add("active");
+
+      // highlight tab
+      document.querySelectorAll(".tab-item").forEach(t => t.classList.remove("active"));
+      const tab = document.getElementById(`tab-${screenName}`);
+      if (tab) tab.classList.add("active");
+
+      // rerender when visiting screens
+      if (screenName === "queue") renderQueue();
+      if (screenName === "evs") renderEVSBoard();
+      if (screenName === "bed") renderBedManager();
+      if (screenName === "reports") renderReports();
     }
 
-    if (currentRole === "nurse" &&
-        (screenName === "evs" || screenName === "bed" || screenName === "reports")) {
-      alert("As a nurse, your main view is the Discharge Queue.");
-      screenName = "queue";
-    }
+    window.goTo = goTo;
+    window.showScreen = showScreen;
 
-    if (currentRole === "bedmanager" && screenName === "queue") {
-      alert("Bed Managers focus on the Bed Manager and Reports views.");
-      screenName = "bed";
-    }
+    /* ============================================================
+       LOGIN HANDLER (with role-based views)
+       ============================================================ */
+    window.handleLogin = async function () {
+      const username = document.getElementById("login-username").value.trim();
 
-    showScreen(screenName);
-  }
+      if (!username) {
+        alert("Please enter a username.");
+        return;
+      }
 
-  function showScreen(screenName) {
-    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-    const screen = document.getElementById(`screen-${screenName}`);
-    if (screen) screen.classList.add("active");
+      let role = "nurse";
+      if (username.toLowerCase().includes("evs")) role = "evs";
+      if (username.toLowerCase().includes("bed")) role = "bedmanager";
 
-    // highlight tab
-    document.querySelectorAll(".tab-item").forEach(t => t.classList.remove("active"));
-    const tab = document.getElementById(`tab-${screenName}`);
-    if (tab) tab.classList.add("active");
+      currentUser = username;
+      currentRole = role;
 
-    // rerender when visiting screens
-    if (screenName === "queue") renderQueue();
-    if (screenName === "evs") renderEVSBoard();
-    if (screenName === "bed") renderBedManager();
-    if (screenName === "reports") renderReports();
-  }
+      applyRoleView();
 
-  // make these callable from HTML onclick=""
-  window.goTo = goTo;
-  window.showScreen = showScreen;
+      await loadData();
+      await maybeSeedData();
 
-  /* ============================================================
-     LOGIN HANDLER (with role-based views)
-     ============================================================ */
-  window.handleLogin = async function () {
-    const username = document.getElementById("login-username").value.trim();
-
-    if (!username) {
-      alert("Please enter a username.");
-      return;
-    }
-
-    // simple role detection based on username
-    let role = "nurse";
-    if (username.toLowerCase().includes("evs")) role = "evs";
-    if (username.toLowerCase().includes("bed")) role = "bedmanager";
-
-    currentUser = username;
-    currentRole = role;
-
-    // show/hide tabs & home cards based on role
-    applyRoleView();
-
-    // load data and seed if empty
-    await loadData();
-    await maybeSeedData();
-
-    // send each role to their main screen
-    if (currentRole === "nurse") {
-      goTo("queue");
-    } else if (currentRole === "evs") {
-      goTo("evs");
-    } else if (currentRole === "bedmanager") {
-      goTo("bed");
-    } else {
-      goTo("home");
-    }
-  };
-
-  /* ============================================================
-     ROLE-BASED VIEW LOGIC (tabs + home cards)
-     ============================================================ */
-  function applyRoleView() {
-    const tabs = {
-      home: document.getElementById("tab-home"),
-      queue: document.getElementById("tab-queue"),
-      evs: document.getElementById("tab-evs"),
-      bed: document.getElementById("tab-bed"),
-      reports: document.getElementById("tab-reports")
+      if (currentRole === "nurse") {
+        goTo("queue");
+      } else if (currentRole === "evs") {
+        goTo("evs");
+      } else if (currentRole === "bedmanager") {
+        goTo("bed");
+      } else {
+        goTo("home");
+      }
     };
 
-    const homeCards = {
-      queue: document.getElementById("home-card-queue"),
-      evs: document.getElementById("home-card-evs"),
-      bed: document.getElementById("home-card-bed"),
-      reports: document.getElementById("home-card-reports")
-    };
+    /* ============================================================
+       ROLE-BASED VIEW LOGIC (tabs + home cards)
+       ============================================================ */
+    function applyRoleView() {
+      const tabs = {
+        home: document.getElementById("tab-home"),
+        queue: document.getElementById("tab-queue"),
+        evs: document.getElementById("tab-evs"),
+        bed: document.getElementById("tab-bed"),
+        reports: document.getElementById("tab-reports")
+      };
 
-    // show everything by default
-    Object.values(tabs).forEach(t => t && (t.style.display = "flex"));
-    Object.values(homeCards).forEach(c => c && (c.style.display = "block"));
+      const homeCards = {
+        queue: document.getElementById("home-card-queue"),
+        evs: document.getElementById("home-card-evs"),
+        bed: document.getElementById("home-card-bed"),
+        reports: document.getElementById("home-card-reports")
+      };
 
-    // Nurse: Home + Queue
-    if (currentRole === "nurse") {
-      if (tabs.evs) tabs.evs.style.display = "none";
-      if (tabs.bed) tabs.bed.style.display = "none";
-      if (tabs.reports) tabs.reports.style.display = "none";
+      Object.values(tabs).forEach(t => t && (t.style.display = "flex"));
+      Object.values(homeCards).forEach(c => c && (c.style.display = "block"));
 
-      if (homeCards.evs) homeCards.evs.style.display = "none";
-      if (homeCards.bed) homeCards.bed.style.display = "none";
-      if (homeCards.reports) homeCards.reports.style.display = "none";
-    }
+      if (currentRole === "nurse") {
+        if (tabs.evs) tabs.evs.style.display = "none";
+        if (tabs.bed) tabs.bed.style.display = "none";
+        if (tabs.reports) tabs.reports.style.display = "none";
 
-    // EVS: Home + EVS
-    if (currentRole === "evs") {
-      if (tabs.queue) tabs.queue.style.display = "none";
-      if (tabs.bed) tabs.bed.style.display = "none";
-      if (tabs.reports) tabs.reports.style.display = "none";
-
-      if (homeCards.queue) homeCards.queue.style.display = "none";
-      if (homeCards.bed) homeCards.bed.style.display = "none";
-      if (homeCards.reports) homeCards.reports.style.display = "none";
-    }
-
-    // Bed Manager: Home + Bed + Reports
-    if (currentRole === "bedmanager") {
-      if (tabs.queue) tabs.queue.style.display = "none";
-      if (tabs.evs) tabs.evs.style.display = "none";
-
-      if (homeCards.queue) homeCards.queue.style.display = "none";
-      if (homeCards.evs) homeCards.evs.style.display = "none";
-    }
-  }
-
-  /* ============================================================
-     SUPABASE DATA LOAD
-     ============================================================ */
-  async function loadData() {
-    const { data: p, error: pErr } = await supabase.from("patients").select("*").order("id");
-    const { data: r, error: rErr } = await supabase.from("rooms").select("*").order("id");
-    const { data: e, error: eErr } = await supabase.from("evs_tasks").select("*").order("id");
-
-    if (pErr) console.error("Patients load error:", pErr);
-    if (rErr) console.error("Rooms load error:", rErr);
-    if (eErr) console.error("EVS load error:", eErr);
-
-    patients = p || [];
-    rooms = r || [];
-    evsTasks = e || [];
-  }
-
-  /* ============================================================
-     AUTO-SEED SAMPLE DATA (Only if DB is empty)
-     ============================================================ */
-  async function maybeSeedData() {
-    if (seeded) return;
-
-    if (patients.length === 0) {
-      console.log("Seeding patients...");
-      await supabase.from("patients").insert([
-        {
-          patient_name: "John White",
-          mrn: "223344",
-          unit: "5B",
-          room_number: "5B-312",
-          discharge_status: "Discharge Ordered",
-          discharge_ordered_at: new Date(),
-          priority: "High – Isolation"
-        },
-        {
-          patient_name: "Lisa Turner",
-          mrn: "554433",
-          unit: "5B",
-          room_number: "5B-318",
-          discharge_status: "Patient Left",
-          patient_left_at: new Date(),
-          priority: "Medium"
-        },
-        {
-          patient_name: "Robert Cruz",
-          mrn: "998877",
-          unit: "5C",
-          room_number: "5C-114",
-          discharge_status: "EVS In Progress",
-          evs_started_at: new Date(),
-          priority: "Standard"
-        }
-      ]);
-    }
-
-    if (rooms.length === 0) {
-      console.log("Seeding rooms...");
-      await supabase.from("rooms").insert([
-        { unit: "5B", room_number: "5B-312", room_status: "Occupied" },
-        { unit: "5B", room_number: "5B-318", room_status: "Dirty" },
-        { unit: "5C", room_number: "5C-114", room_status: "Dirty" },
-        { unit: "5C", room_number: "5C-200", room_status: "Clean" }
-      ]);
-    }
-
-    if (evsTasks.length === 0) {
-      console.log("Seeding EVS tasks...");
-      await supabase.from("evs_tasks").insert([
-        {
-          unit: "5B",
-          room_number: "5B-318",
-          patient_name: "Lisa Turner",
-          task_status: "Waiting",
-          priority: "High"
-        }
-      ]);
-    }
-
-    seeded = true;
-    await loadData();
-  }
-
-  /* ============================================================
-     UTILITY FUNCTIONS
-     ============================================================ */
-  function sinceTime(dateString) {
-    if (!dateString) return "—";
-    const date = new Date(dateString);
-    const diffMin = Math.floor((Date.now() - date.getTime()) / 60000);
-    if (diffMin < 1) return "Just now";
-    if (diffMin < 60) return diffMin + " min";
-    const hours = Math.floor(diffMin / 60);
-    return hours + " hr";
-  }
-
-  function pill(status) {
-    if (status === "Discharge Ordered") return `<span class="pill pill-discharge">Ordered</span>`;
-    if (status === "Patient Left") return `<span class="pill pill-left">Left</span>`;
-    if (status === "EVS In Progress") return `<span class="pill pill-evs">EVS</span>`;
-    if (status === "Room Clean") return `<span class="pill pill-clean">Clean</span>`;
-    return status || "—";
-  }
-
-  function getSince(p) {
-    if (p.discharge_status === "Discharge Ordered") return sinceTime(p.discharge_ordered_at);
-    if (p.discharge_status === "Patient Left") return sinceTime(p.patient_left_at);
-    if (p.discharge_status === "EVS In Progress") return sinceTime(p.evs_started_at);
-    if (p.discharge_status === "Room Clean") return sinceTime(p.evs_completed_at);
-    return "—";
-  }
-
-  /* ============================================================
-     QUEUE RENDER
-     ============================================================ */
-  function renderQueue() {
-    const body = document.getElementById("queue-body");
-    if (!body) return;
-    body.innerHTML = "";
-
-    patients.forEach(p => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td style="cursor:pointer; font-weight:600;" onclick="openRoom(${p.id})">${p.room_number || "—"}</td>
-        <td>${pill(p.discharge_status)}</td>
-        <td>${getSince(p)}</td>
-      `;
-      body.appendChild(tr);
-    });
-  }
-
-  /* ============================================================
-     CREATE NEW DISCHARGE
-     ============================================================ */
-  window.createDischarge = async function () {
-    const room = document.getElementById("new-room").value.trim();
-    const unit = document.getElementById("new-unit").value.trim() || "5B";
-    const priority = document.getElementById("new-priority").value.trim() || "Standard";
-
-    if (!room) {
-      alert("Enter a room number.");
-      return;
-    }
-
-    const { error } = await supabase.from("patients").insert([
-      {
-        patient_name: "Unknown",
-        mrn: null,
-        unit,
-        room_number: room,
-        discharge_status: "Discharge Ordered",
-        discharge_ordered_at: new Date(),
-        priority
-      }
-    ]);
-
-    if (error) {
-      console.error("Insert failed:", error);
-      alert("Error inserting data. Check console.");
-      return;
-    }
-
-    await loadData();
-
-    renderQueue();
-    renderEVSBoard();
-    renderBedManager();
-    renderReports();
-
-    document.getElementById("new-room").value = "";
-    document.getElementById("new-unit").value = "";
-    document.getElementById("new-priority").value = "";
-
-    alert("Discharge Ordered created!");
-  };
-
-  /* ============================================================
-     OPEN ROOM DETAIL
-     ============================================================ */
-  window.openRoom = function (id) {
-    const p = patients.find(x => x.id === id);
-    if (!p) return;
-
-    document.getElementById("room-title").textContent = p.room_number || "Room";
-    document.getElementById("room-subtitle").textContent = (p.unit || "") + " Unit";
-
-    let history = "";
-    if (p.discharge_ordered_at)
-      history += `<tr><td>Discharge Ordered</td><td>${new Date(p.discharge_ordered_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td></tr>`;
-    if (p.patient_left_at)
-      history += `<tr><td>Patient Left</td><td>${new Date(p.patient_left_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td></tr>`;
-    if (p.evs_started_at)
-      history += `<tr><td>EVS Started</td><td>${new Date(p.evs_started_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td></tr>`;
-    if (p.evs_completed_at)
-      history += `<tr><td>Room Clean</td><td>${new Date(p.evs_completed_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td></tr>`;
-
-    const next = getNextStep(p.discharge_status);
-
-    document.getElementById("room-detail-container").innerHTML = `
-      <div class="card">
-        <div class="card-title">Status</div>
-        <div style="margin-bottom:12px;">${pill(p.discharge_status)} · Since ${getSince(p)}</div>
-        ${
-          next
-            ? `<button class="btn btn-primary" onclick="advanceStatus(${p.id})">Next: ${next}</button>`
-            : `<div class="card-text">Workflow complete.</div>`
-        }
-      </div>
-
-      <div class="card">
-        <div class="card-title">Event Log</div>
-        <table>${history || "<tr><td>No events yet.</td><td></td></tr>"}</table>
-      </div>
-    `;
-
-    goTo("room");
-  };
-
-  /* ============================================================
-     WORKFLOW: GET NEXT STEP
-     ============================================================ */
-  function getNextStep(current) {
-    if (current === "Discharge Ordered") return "Patient Left";
-    if (current === "Patient Left") return "EVS In Progress";
-    if (current === "EVS In Progress") return "Room Clean";
-    return null;
-  }
-
-  /* ============================================================
-     WORKFLOW: ADVANCE STATUS
-     ============================================================ */
-  window.advanceStatus = async function (id) {
-    const p = patients.find(x => x.id === id);
-    if (!p) return;
-
-    const next = getNextStep(p.discharge_status);
-    if (!next) return;
-
-    let updates = {};
-    if (next === "Patient Left") updates = { discharge_status: next, patient_left_at: new Date() };
-    if (next === "EVS In Progress") updates = { discharge_status: next, evs_started_at: new Date() };
-    if (next === "Room Clean") updates = { discharge_status: next, evs_completed_at: new Date() };
-
-    const { error } = await supabase.from("patients").update(updates).eq("id", id);
-    if (error) {
-      console.error("Update failed:", error);
-      alert("Error updating status. Check console.");
-      return;
-    }
-
-    await loadData();
-    renderQueue();
-    renderEVSBoard();
-    renderBedManager();
-    renderReports();
-    openRoom(id);
-  };
-
-  /* ============================================================
-     EVS BOARD RENDER
-     ============================================================ */
-  function renderEVSBoard() {
-    const waiting = document.getElementById("evs-waiting");
-    const inprog = document.getElementById("evs-inprogress");
-    if (!waiting || !inprog) return;
-
-    waiting.innerHTML = "";
-    inprog.innerHTML = "";
-
-    patients.forEach(p => {
-      if (p.discharge_status === "Patient Left") {
-        waiting.innerHTML += `
-          <div class="card" style="padding:12px; margin-bottom:8px;">
-            <div style="font-weight:600;">${p.room_number || "—"}</div>
-            <div class="card-text">${p.priority || ""}</div>
-            <button class="btn btn-primary" onclick="advanceStatus(${p.id})">Start Cleaning</button>
-          </div>
-        `;
+        if (homeCards.evs) homeCards.evs.style.display = "none";
+        if (homeCards.bed) homeCards.bed.style.display = "none";
+        if (homeCards.reports) homeCards.reports.style.display = "none";
       }
 
-      if (p.discharge_status === "EVS In Progress") {
-        inprog.innerHTML += `
-          <div class="card" style="padding:12px; margin-bottom:8px;">
-            <div style="font-weight:600;">${p.room_number || "—"}</div>
-            <div class="card-text">${p.priority || ""}</div>
-            <button class="btn btn-primary" onclick="advanceStatus(${p.id})">Mark Clean</button>
-          </div>
-        `;
+      if (currentRole === "evs") {
+        if (tabs.queue) tabs.queue.style.display = "none";
+        if (tabs.bed) tabs.bed.style.display = "none";
+        if (tabs.reports) tabs.reports.style.display = "none";
+
+        if (homeCards.queue) homeCards.queue.style.display = "none";
+        if (homeCards.bed) homeCards.bed.style.display = "none";
+        if (homeCards.reports) homeCards.reports.style.display = "none";
       }
-    });
 
-    if (!waiting.innerHTML.trim()) waiting.innerHTML = `<div class="card-text">No rooms waiting.</div>`;
-    if (!inprog.innerHTML.trim()) inprog.innerHTML = `<div class="card-text">No rooms in progress.</div>`;
-  }
+      if (currentRole === "bedmanager") {
+        if (tabs.queue) tabs.queue.style.display = "none";
+        if (tabs.evs) tabs.evs.style.display = "none";
 
-  /* ============================================================
-     BED MANAGER RENDER
-     ============================================================ */
-  function renderBedManager() {
-    const body = document.getElementById("bed-body");
-    if (!body) return;
-    body.innerHTML = "";
+        if (homeCards.queue) homeCards.queue.style.display = "none";
+        if (homeCards.evs) homeCards.evs.style.display = "none";
+      }
+    }
 
-    const total = patients.length;
-    const cleanCount = patients.filter(p => p.discharge_status === "Room Clean").length;
-    const occupied = total - cleanCount;
+    /* ============================================================
+       SUPABASE DATA LOAD
+       ============================================================ */
+    async function loadData() {
+      const { data: p, error: pErr } = await supabase.from("patients").select("*").order("id");
+      const { data: r, error: rErr } = await supabase.from("rooms").select("*").order("id");
+      const { data: e, error: eErr } = await supabase.from("evs_tasks").select("*").order("id");
 
-    document.getElementById("metric-occupancy").textContent =
-      total ? Math.floor((occupied / total) * 100) + "%" : "–";
-    document.getElementById("metric-ready").textContent = cleanCount;
+      if (pErr) console.error("Patients load error:", pErr);
+      if (rErr) console.error("Rooms load error:", rErr);
+      if (eErr) console.error("EVS load error:", eErr);
 
-    patients.forEach(p => {
-      body.innerHTML += `
-        <tr>
-          <td>${p.room_number || "—"}</td>
+      patients = p || [];
+      rooms = r || [];
+      evsTasks = e || [];
+    }
+
+    /* ============================================================
+       AUTO-SEED SAMPLE DATA (Only if DB is empty)
+       ============================================================ */
+    async function maybeSeedData() {
+      if (seeded) return;
+
+      if (patients.length === 0) {
+        await supabase.from("patients").insert([
+          {
+            patient_name: "John White",
+            mrn: "223344",
+            unit: "5B",
+            room_number: "5B-312",
+            discharge_status: "Discharge Ordered",
+            discharge_ordered_at: new Date(),
+            priority: "High – Isolation"
+          },
+          {
+            patient_name: "Lisa Turner",
+            mrn: "554433",
+            unit: "5B",
+            room_number: "5B-318",
+            discharge_status: "Patient Left",
+            patient_left_at: new Date(),
+            priority: "Medium"
+          },
+          {
+            patient_name: "Robert Cruz",
+            mrn: "998877",
+            unit: "5C",
+            room_number: "5C-114",
+            discharge_status: "EVS In Progress",
+            evs_started_at: new Date(),
+            priority: "Standard"
+          }
+        ]);
+      }
+
+      if (rooms.length === 0) {
+        await supabase.from("rooms").insert([
+          { unit: "5B", room_number: "5B-312", room_status: "Occupied" },
+          { unit: "5B", room_number: "5B-318", room_status: "Dirty" },
+          { unit: "5C", room_number: "5C-114", room_status: "Dirty" },
+          { unit: "5C", room_number: "5C-200", room_status: "Clean" }
+        ]);
+      }
+
+      if (evsTasks.length === 0) {
+        await supabase.from("evs_tasks").insert([
+          {
+            unit: "5B",
+            room_number: "5B-318",
+            patient_name: "Lisa Turner",
+            task_status: "Waiting",
+            priority: "High"
+          }
+        ]);
+      }
+
+      seeded = true;
+      await loadData();
+    }
+
+    /* ============================================================
+       UTILITY FUNCTIONS
+       ============================================================ */
+    function sinceTime(dateString) {
+      if (!dateString) return "—";
+      const date = new Date(dateString);
+      const diffMin = Math.floor((Date.now() - date.getTime()) / 60000);
+      if (diffMin < 1) return "Just now";
+      if (diffMin < 60) return diffMin + " min";
+      const hours = Math.floor(diffMin / 60);
+      return hours + " hr";
+    }
+
+    function pill(status) {
+      if (status === "Discharge Ordered") return `<span class="pill pill-discharge">Ordered</span>`;
+      if (status === "Patient Left") return `<span class="pill pill-left">Left</span>`;
+      if (status === "EVS In Progress") return `<span class="pill pill-evs">EVS</span>`;
+      if (status === "Room Clean") return `<span class="pill pill-clean">Clean</span>`;
+      return status || "—";
+    }
+
+    function getSince(p) {
+      if (p.discharge_status === "Discharge Ordered") return sinceTime(p.discharge_ordered_at);
+      if (p.discharge_status === "Patient Left") return sinceTime(p.patient_left_at);
+      if (p.discharge_status === "EVS In Progress") return sinceTime(p.evs_started_at);
+      if (p.discharge_status === "Room Clean") return sinceTime(p.evs_completed_at);
+      return "—";
+    }
+
+    /* ============================================================
+       QUEUE RENDER
+       ============================================================ */
+    function renderQueue() {
+      const body = document.getElementById("queue-body");
+      if (!body) return;
+      body.innerHTML = "";
+
+      patients.forEach(p => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="cursor:pointer; font-weight:600;" onclick="openRoom(${p.id})">${p.room_number || "—"}</td>
           <td>${pill(p.discharge_status)}</td>
           <td>${getSince(p)}</td>
-        </tr>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    /* ============================================================
+       CREATE NEW DISCHARGE
+       ============================================================ */
+    window.createDischarge = async function () {
+      const room = document.getElementById("new-room").value.trim();
+      const unit = document.getElementById("new-unit").value.trim() || "5B";
+      const priority = document.getElementById("new-priority").value.trim() || "Standard";
+
+      if (!room) {
+        alert("Enter a room number.");
+        return;
+      }
+
+      const { error } = await supabase.from("patients").insert([
+        {
+          patient_name: "Unknown",
+          mrn: null,
+          unit,
+          room_number: room,
+          discharge_status: "Discharge Ordered",
+          discharge_ordered_at: new Date(),
+          priority
+        }
+      ]);
+
+      if (error) {
+        console.error("Insert failed:", error);
+        alert("Error inserting data. Check console.");
+        return;
+      }
+
+      await loadData();
+      renderQueue();
+      renderEVSBoard();
+      renderBedManager();
+      renderReports();
+
+      document.getElementById("new-room").value = "";
+      document.getElementById("new-unit").value = "";
+      document.getElementById("new-priority").value = "";
+
+      alert("Discharge Ordered created!");
+    };
+
+    /* ============================================================
+       OPEN ROOM DETAIL
+       ============================================================ */
+    window.openRoom = function (id) {
+      const p = patients.find(x => x.id === id);
+      if (!p) return;
+
+      document.getElementById("room-title").textContent = p.room_number || "Room";
+      document.getElementById("room-subtitle").textContent = (p.unit || "") + " Unit";
+
+      let history = "";
+      if (p.discharge_ordered_at)
+        history += `<tr><td>Discharge Ordered</td><td>${new Date(p.discharge_ordered_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td></tr>`;
+      if (p.patient_left_at)
+        history += `<tr><td>Patient Left</td><td>${new Date(p.patient_left_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td></tr>`;
+      if (p.evs_started_at)
+        history += `<tr><td>EVS Started</td><td>${new Date(p.evs_started_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td></tr>`;
+      if (p.evs_completed_at)
+        history += `<tr><td>Room Clean</td><td>${new Date(p.evs_completed_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td></tr>`;
+
+      const next = getNextStep(p.discharge_status);
+
+      document.getElementById("room-detail-container").innerHTML = `
+        <div class="card">
+          <div class="card-title">Status</div>
+          <div style="margin-bottom:12px;">${pill(p.discharge_status)} · Since ${getSince(p)}</div>
+          ${
+            next
+              ? `<button class="btn btn-primary" onclick="advanceStatus(${p.id})">Next: ${next}</button>`
+              : `<div class="card-text">Workflow complete.</div>`
+          }
+        </div>
+
+        <div class="card">
+          <div class="card-title">Event Log</div>
+          <table>${history || "<tr><td>No events yet.</td><td></td></tr>"}</table>
+        </div>
       `;
-    });
-  }
 
-  /* ============================================================
-     REPORTS RENDER
-     ============================================================ */
-  function renderReports() {
-    const ordered = patients.filter(p => p.discharge_status === "Discharge Ordered").length;
-    const left = patients.filter(p => p.discharge_status === "Patient Left").length;
-    const evs = patients.filter(p => p.discharge_status === "EVS In Progress").length;
-    const clean = patients.filter(p => p.discharge_status === "Room Clean").length;
+      goTo("room");
+    };
 
-    document.getElementById("rep-ordered").textContent = ordered;
-    document.getElementById("rep-left").textContent = left;
-    document.getElementById("rep-evs").textContent = evs;
-    document.getElementById("rep-clean").textContent = clean;
+    /* ============================================================
+       WORKFLOW: GET NEXT STEP
+       ============================================================ */
+    function getNextStep(current) {
+      if (current === "Discharge Ordered") return "Patient Left";
+      if (current === "Patient Left") return "EVS In Progress";
+      if (current === "EVS In Progress") return "Room Clean";
+      return null;
+    }
 
-    const tbody = document.getElementById("reports-body");
-    if (!tbody) return;
-    tbody.innerHTML = "";
+    /* ============================================================
+       WORKFLOW: ADVANCE STATUS
+       ============================================================ */
+    window.advanceStatus = async function (id) {
+      const p = patients.find(x => x.id === id);
+      if (!p) return;
 
-    patients
-      .filter(p => p.discharge_status === "Room Clean")
-      .forEach(p => {
-        tbody.innerHTML += `
+      const next = getNextStep(p.discharge_status);
+      if (!next) return;
+
+      let updates = {};
+      if (next === "Patient Left") updates = { discharge_status: next, patient_left_at: new Date() };
+      if (next === "EVS In Progress") updates = { discharge_status: next, evs_started_at: new Date() };
+      if (next === "Room Clean") updates = { discharge_status: next, evs_completed_at: new Date() };
+
+      const { error } = await supabase.from("patients").update(updates).eq("id", id);
+      if (error) {
+        console.error("Update failed:", error);
+        alert("Error updating status. Check console.");
+        return;
+      }
+
+      await loadData();
+      renderQueue();
+      renderEVSBoard();
+      renderBedManager();
+      renderReports();
+      openRoom(id);
+    };
+
+    /* ============================================================
+       EVS BOARD RENDER
+       ============================================================ */
+    function renderEVSBoard() {
+      const waiting = document.getElementById("evs-waiting");
+      const inprog = document.getElementById("evs-inprogress");
+      if (!waiting || !inprog) return;
+
+      waiting.innerHTML = "";
+      inprog.innerHTML = "";
+
+      patients.forEach(p => {
+        if (p.discharge_status === "Patient Left") {
+          waiting.innerHTML += `
+            <div class="card" style="padding:12px; margin-bottom:8px;">
+              <div style="font-weight:600;">${p.room_number || "—"}</div>
+              <div class="card-text">${p.priority || ""}</div>
+              <button class="btn btn-primary" onclick="advanceStatus(${p.id})">Start Cleaning</button>
+            </div>
+          `;
+        }
+
+        if (p.discharge_status === "EVS In Progress") {
+          inprog.innerHTML += `
+            <div class="card" style="padding:12px; margin-bottom:8px;">
+              <div style="font-weight:600;">${p.room_number || "—"}</div>
+              <div class="card-text">${p.priority || ""}</div>
+              <button class="btn btn-primary" onclick="advanceStatus(${p.id})">Mark Clean</button>
+            </div>
+          `;
+        }
+      });
+
+      if (!waiting.innerHTML.trim()) waiting.innerHTML = `<div class="card-text">No rooms waiting.</div>`;
+      if (!inprog.innerHTML.trim()) inprog.innerHTML = `<div class="card-text">No rooms in progress.</div>`;
+    }
+
+    /* ============================================================
+       BED MANAGER RENDER
+       ============================================================ */
+    function renderBedManager() {
+      const body = document.getElementById("bed-body");
+      if (!body) return;
+      body.innerHTML = "";
+
+      const total = patients.length;
+      const cleanCount = patients.filter(p => p.discharge_status === "Room Clean").length;
+      const occupied = total - cleanCount;
+
+      document.getElementById("metric-occupancy").textContent =
+        total ? Math.floor((occupied / total) * 100) + "%" : "–";
+      document.getElementById("metric-ready").textContent = cleanCount;
+
+      patients.forEach(p => {
+        body.innerHTML += `
           <tr>
             <td>${p.room_number || "—"}</td>
-            <td>${p.unit || ""}</td>
-            <td>${p.evs_completed_at
-              ? new Date(p.evs_completed_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-              : "–"}</td>
+            <td>${pill(p.discharge_status)}</td>
+            <td>${getSince(p)}</td>
           </tr>
         `;
       });
-
-    if (!tbody.innerHTML.trim()) {
-      tbody.innerHTML = `<tr><td colspan="3">No clean rooms yet.</td></tr>`;
     }
-  }
 
-  /* ============================================================
-     INITIAL LOAD (LOGIN SCREEN)
-     ============================================================ */
-  showScreen("login");
-</script>
+    /* ============================================================
+       REPORTS RENDER
+       ============================================================ */
+    function renderReports() {
+      const ordered = patients.filter(p => p.discharge_status === "Discharge Ordered").length;
+      const left = patients.filter(p => p.discharge_status === "Patient Left").length;
+      const evs = patients.filter(p => p.discharge_status === "EVS In Progress").length;
+      const clean = patients.filter(p => p.discharge_status === "Room Clean").length;
+
+      document.getElementById("rep-ordered").textContent = ordered;
+      document.getElementById("rep-left").textContent = left;
+      document.getElementById("rep-evs").textContent = evs;
+      document.getElementById("rep-clean").textContent = clean;
+
+      const tbody = document.getElementById("reports-body");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      patients
+        .filter(p => p.discharge_status === "Room Clean")
+        .forEach(p => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${p.room_number || "—"}</td>
+              <td>${p.unit || ""}</td>
+              <td>${p.evs_completed_at
+                ? new Date(p.evs_completed_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                : "–"}</td>
+            </tr>
+          `;
+        });
+
+      if (!tbody.innerHTML.trim()) {
+        tbody.innerHTML = `<tr><td colspan="3">No clean rooms yet.</td></tr>`;
+      }
+    }
+
+    /* ============================================================
+       INITIAL LOAD (LOGIN SCREEN)
+       ============================================================ */
+    showScreen("login");
+  </script>
+</body>
+</html>
